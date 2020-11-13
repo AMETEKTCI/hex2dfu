@@ -9,12 +9,12 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>hex2dfu</ToolCommandName>
 
-    <Authors>geoff.davis@ametek.com,AMETEKTCI</Authors>
+    <Authors>nanoframework@outlook.com</Authors>
     <Product>hex2dfu</Product>
     <Copyright>Copyright © 2020 nanoFramework</Copyright>
     <Description>A console application to convert and/or pack HEX or BIN files to DFU packages. It supports the STMicroselectronics DFU extensions (DFUse).</Description>
     <PackageId>hex2dfu</PackageId>
-    <RepositoryUrl>https://github.com/AMETEKTCI/hex2dfu.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/nanoframework/hex2dfu</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Configurations>Release;Debug</Configurations>
     <Platforms>x86</Platforms>
