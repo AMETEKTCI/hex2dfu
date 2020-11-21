@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2017 The nanoFramework project contributors
 // See LICENSE file in the project root for full license information.
 //
@@ -35,12 +35,11 @@ namespace nanoFramework.Tools
         [Argument('f', "fwversion")]
         private static string FirmwareVersion { get; set; }
 
-
+        static int Main(string[] args)
         private static ushort _Vid => ushort.Parse(Vid, System.Globalization.NumberStyles.HexNumber);
         private static ushort _Pid => ushort.Parse(Pid, System.Globalization.NumberStyles.HexNumber);
         private static ushort _FirmwareVersion => ushort.Parse(FirmwareVersion, System.Globalization.NumberStyles.HexNumber);
 
-        static void Main(string[] args)
         {
             Arguments.Populate();
 
@@ -64,9 +63,24 @@ namespace nanoFramework.Tools
                 Console.WriteLine(@"     [-p=""0000""] (PID of target USB device (hexadecimal format), leave empty to use STM default)");
                 Console.WriteLine(@"     [-f=""0000""] (Firmware version of the target USB device (hexadecimal format), leave empty to use default)");
                 Console.WriteLine();
+
+                return 0;
             }
 
             // args check
+
+            // output DFU file name is mandatory
+            if (OutputDfuFile == null)
+            {
+                Console.WriteLine();
+                Console.WriteLine("ERROR: Output DFU target file name is required.");
+                Console.WriteLine();
+                Console.WriteLine(@"Use -o=output_DFU_image_file_name");
+                Console.WriteLine();
+                Console.WriteLine();
+
+                return 1;
+            }
 
             // need, at least, one hex file
             if (HexFile == null && BinFiles == null)
@@ -74,10 +88,12 @@ namespace nanoFramework.Tools
                 Console.WriteLine();
                 Console.WriteLine("ERROR: Need at least one HEX or BIN file to create DFU target image.");
                 Console.WriteLine();
-                Console.WriteLine(@"Use -h=""path-to-hex-file"" for each HEX file to add to the DFU target.");
+                Console.WriteLine(@"Use -h=path-to-hex-file for each HEX file to add to the DFU target.");
                 Console.WriteLine(@"Use -b=bin_file_name -a=address_to_flash [-b=bin_file_name_N -a=address_to_flash_N] for each BIN file to add to the DFU target.");
                 Console.WriteLine();
                 Console.WriteLine();
+
+                return 2;
             }
 
             if (BinFiles != null)
@@ -91,19 +107,16 @@ namespace nanoFramework.Tools
                     Console.WriteLine(@"Use -b=bin_file_name -a=address_to_flash [-b=bin_file_name_N -a=address_to_flash_N] for each BIN file to add to the DFU target.");
                     Console.WriteLine();
                     Console.WriteLine();
+
+                    return 3;
                 }
             }
 
-            // output DFU file name is mandatory
-            if (OutputDfuFile == null)
-            {
-                Console.WriteLine();
-                Console.WriteLine("ERROR: Output DFU target file name is required.");
-                Console.WriteLine();
-                Console.WriteLine(@"Use -h=""path-to-dfu-file""");
-                Console.WriteLine();
-                Console.WriteLine();
-            }
+            var dfuFile = new FileInfo(OutputDfuFile);
+
+            var vendorId = ushort.TryParse(Vid, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var vid) ? vid : (ushort) 0x0483;
+            var productId = ushort.TryParse(Pid, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var pid) ?  pid : (ushort) 0xDF11;
+            var firmwareVersion = ushort.TryParse(FirmwareVersion, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var version) ? version : (ushort) 0x2200;
 
             if (HexFile != null && OutputDfuFile != null)
             {
@@ -144,8 +157,8 @@ namespace nanoFramework.Tools
                 {
                     Hex2Dfu.CreateDfuFile(binFiles, OutputDfuFile, _Vid, _Pid, _FirmwareVersion);
                 }
-                else if (Vid != null && Pid != null && FirmwareVersion == null)
-                {
+
+            return 0;
                     Hex2Dfu.CreateDfuFile(binFiles, OutputDfuFile, _Vid, _Pid);
                 }
                 else if (Vid != null && Pid == null && FirmwareVersion == null)
