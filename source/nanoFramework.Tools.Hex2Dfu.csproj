@@ -3,6 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <Configurations>Release;Debug</Configurations>
+    <Platforms>x86</Platforms>
+    <PlatformTarget>x86</PlatformTarget>
 
     <AssemblyName>hex2dfu</AssemblyName>
 
@@ -16,12 +19,14 @@
     <PackageId>hex2dfu</PackageId>
     <RepositoryUrl>https://github.com/AMETEKTCI/hex2dfu.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Configurations>Release;Debug</Configurations>
-    <Platforms>x86</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
