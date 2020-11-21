@@ -1,10 +1,12 @@
-//
+﻿//
 // Copyright (c) 2017 The nanoFramework project contributors
 // See LICENSE file in the project root for full license information.
 //
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Utility.CommandLine;
@@ -36,10 +38,6 @@ namespace nanoFramework.Tools
         private static string FirmwareVersion { get; set; }
 
         static int Main(string[] args)
-        private static ushort _Vid => ushort.Parse(Vid, System.Globalization.NumberStyles.HexNumber);
-        private static ushort _Pid => ushort.Parse(Pid, System.Globalization.NumberStyles.HexNumber);
-        private static ushort _FirmwareVersion => ushort.Parse(FirmwareVersion, System.Globalization.NumberStyles.HexNumber);
-
         {
             Arguments.Populate();
 
@@ -117,29 +115,13 @@ namespace nanoFramework.Tools
             var vendorId = ushort.TryParse(Vid, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var vid) ? vid : (ushort) 0x0483;
             var productId = ushort.TryParse(Pid, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var pid) ?  pid : (ushort) 0xDF11;
             var firmwareVersion = ushort.TryParse(FirmwareVersion, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var version) ? version : (ushort) 0x2200;
-
-            if (HexFile != null && OutputDfuFile != null)
+            
+            if (HexFile != null)
             {
-                // compose the call to CreateDfuFile according to the requested parameters
-                if (Vid != null && Pid != null && FirmwareVersion != null)
-                {
-                    Hex2Dfu.CreateDfuFile(HexFile, OutputDfuFile, _Vid, _Pid, _FirmwareVersion);
-                }
-                else if (Vid != null && Pid != null && FirmwareVersion == null)
-                {
-                    Hex2Dfu.CreateDfuFile(HexFile, OutputDfuFile, _Vid, _Pid);
-                }
-                else if (Vid != null && Pid == null && FirmwareVersion == null)
-                {
-                    Hex2Dfu.CreateDfuFile(HexFile, OutputDfuFile, _Vid);
-                }
-                else if (Vid == null && Pid == null && FirmwareVersion == null)
-                {
-                    Hex2Dfu.CreateDfuFile(HexFile, OutputDfuFile);
-                }
+                var hexFile = new FileInfo(HexFile);
+                Hex2Dfu.CreateDfuFile(hexFile, dfuFile, vendorId, productId, firmwareVersion);
             }
-
-            if (BinFiles != null && OutputDfuFile != null)
+            else
             {
                 // combine BIN files and addresses
                 List<BinaryFileInfo> binFiles = new List<BinaryFileInfo>();
@@ -149,27 +131,13 @@ namespace nanoFramework.Tools
                 foreach (string file in BinFiles)
                 {
                     addressEnum.MoveNext();
-                    binFiles.Add(new BinaryFileInfo(file, uint.Parse(addressEnum.Current, System.Globalization.NumberStyles.HexNumber)));
+                    binFiles.Add(new BinaryFileInfo(new FileInfo(file), uint.Parse(addressEnum.Current, System.Globalization.NumberStyles.HexNumber)));
                 }
 
-                // compose the call to CreateDfuFile according to the requested parameters
-                if (Vid != null && Pid != null && FirmwareVersion != null)
-                {
-                    Hex2Dfu.CreateDfuFile(binFiles, OutputDfuFile, _Vid, _Pid, _FirmwareVersion);
-                }
+                Hex2Dfu.CreateDfuFile(binFiles, dfuFile, vendorId, productId, firmwareVersion);
+            }
 
             return 0;
-                    Hex2Dfu.CreateDfuFile(binFiles, OutputDfuFile, _Vid, _Pid);
-                }
-                else if (Vid != null && Pid == null && FirmwareVersion == null)
-                {
-                    Hex2Dfu.CreateDfuFile(binFiles, OutputDfuFile, _Vid);
-                }
-                else if (Vid == null && Pid == null && FirmwareVersion == null)
-                {
-                    Hex2Dfu.CreateDfuFile(binFiles, OutputDfuFile);
-                }
-            }
         }
     }
 }

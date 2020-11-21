@@ -85,23 +85,19 @@ namespace nanoFramework.Tools
 
         #endregion
 
-        const UInt16 defaultSTMVid = 0x0483;
-        const UInt16 defafultSTMPid = 0xDF11;
-        const UInt16 defaultFwVersion = 0x2200;
-
-        public static bool CreateDfuFile(string hexFile, string dfuName, UInt16 vid = defaultSTMVid, UInt16 pid = defafultSTMPid, UInt16 fwVersion = defaultFwVersion)
+        public static bool CreateDfuFile(FileInfo hexFile, FileInfo dfuName, ushort vid, ushort pid, ushort fwVersion)
         {
             IntPtr dfuFileHandle = (IntPtr)0;
             IntPtr imageFileHandle = (IntPtr)0;
 
             // start creating a new DFU file for output
-            var retCode = STDFUFILES_CreateNewDFUFile(dfuName, ref dfuFileHandle, vid, pid, fwVersion);
+            var retCode = STDFUFILES_CreateNewDFUFile(dfuName.FullName, ref dfuFileHandle, vid, pid, fwVersion);
 
             if (retCode == STDFUFILES_NOERROR)
             {
 
                 // get image from HEX file
-                retCode = STDFUFILES_ImageFromFile(hexFile, ref imageFileHandle, 0);
+                retCode = STDFUFILES_ImageFromFile(hexFile.FullName, ref imageFileHandle, 0);
 
                 if (retCode == STDFUFILES_NOERROR)
                 {
@@ -142,13 +138,13 @@ namespace nanoFramework.Tools
             return true;
         }
 
-        public static bool CreateDfuFile(List<BinaryFileInfo> binFiles, string dfuName, UInt16 vid = defaultSTMVid, UInt16 pid = defafultSTMPid, UInt16 fwVersion = defaultFwVersion)
+        public static bool CreateDfuFile(List<BinaryFileInfo> binFiles, FileInfo dfuName, ushort vid, ushort pid, ushort fwVersion)
         {
             IntPtr dfuFileHandle = (IntPtr)0;
             IntPtr imageFileHandle = (IntPtr)0;
 
             // start creating a new DFU file for output
-            var retCode = STDFUFILES_CreateNewDFUFile(dfuName, ref dfuFileHandle, vid, pid, fwVersion);
+            var retCode = STDFUFILES_CreateNewDFUFile(dfuName.FullName, ref dfuFileHandle, vid, pid, fwVersion);
 
             if (retCode == STDFUFILES_NOERROR)
             {
@@ -160,7 +156,7 @@ namespace nanoFramework.Tools
                 // loop through collection of bin files and add them
                 foreach (BinaryFileInfo file in binFiles)
                 {
-                    byte[] fileData = File.ReadAllBytes(file.FileName);
+                    byte[] fileData = File.ReadAllBytes(file.FileName.FullName);
 
                     // get required memory size for byte array
                     int size = Marshal.SizeOf(fileData[0]) * fileData.Length;
@@ -232,10 +228,10 @@ namespace nanoFramework.Tools
 
     public class BinaryFileInfo
     {
-        public string FileName { get; private set; }
+        public FileInfo FileName { get; private set; }
         public uint Address { get; private set; }
 
-        public BinaryFileInfo(string fileName, uint address)
+        public BinaryFileInfo(FileInfo fileName, uint address)
         {
             FileName = fileName;
             Address = address;
